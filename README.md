@@ -34,7 +34,7 @@ except for the following modifications.
     }
   ```
   
-  in this way the DAC time function can correctly work. See
+  in this way the DAC timer function can correctly work. See
 
   void IRAM_ATTR sample_dac_isr()
 
