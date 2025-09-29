@@ -1293,11 +1293,11 @@ int ParseAPRS::parse_aprs_uncompressed(struct pbuf_t *pb, const char *body, cons
 	int issouth = 0;
 	int iswest = 0;
 
-	DEBUG_LOG("parse_aprs_uncompressed");
+	log_d("parse_aprs_uncompressed");
 
 	if (body_end - body < 19)
 	{
-		DEBUG_LOG("\ttoo short");
+		log_d("too short body_end-body=%d < 16\n", body_end - body);
 		return 0;
 	}
 
