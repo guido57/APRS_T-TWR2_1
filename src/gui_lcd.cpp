@@ -6782,7 +6782,7 @@ void dispWindow(String line, uint8_t mode, bool filter)
         String src_call = line.substring(0, start_val);
         memset(&aprs, 0, sizeof(pbuf_t));
         aprs.buf_len = 300;
-        aprs.packet_len = line.length();
+        aprs.packet_len = line.length()+1;
         line.toCharArray(&aprs.data[0], aprs.packet_len);
         int start_info = line.indexOf(":", 0);
         int end_ssid = line.indexOf(",", 0);
