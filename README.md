@@ -34,6 +34,9 @@ except for the following modifications.
     }
   ```
   
-  in this way the DAC time function can correctly work.
+  in this way the DAC time function can correctly work. See
 
+  void IRAM_ATTR sample_dac_isr()
+
+  at line 939 of AFSK.cpp
   
