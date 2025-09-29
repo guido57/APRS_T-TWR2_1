@@ -11,13 +11,29 @@ except for the following modifications.
 
 ## MODIFICATIONS
 
-- The main modification I did was to add
+- The main modification I did was to add     hw_afsk_dac_isr = true;  
+  inside the function void DAC_TimerEnable(bool sts) At line 467 on AFSK.cpp
 
   ```
-     hw_afsk_dac_isr = true; 
-  ```
-  inside the function
-
   void DAC_TimerEnable(bool sts)
+    {
+      if (timer_dac == NULL)
+        return;
+      // portENTER_CRITICAL_ISR(&timerMux);
+      if (sts == true)
+      {
+        timerStart(timer_dac);
+        hw_afsk_dac_isr = true; //GG
+      }
+      else
+      {
+        timerStop(timer_dac);
+      }
+      // portEXIT_CRITICAL_ISR(&timerMux);
+      dacEn = 0;
+    }
+  ```
+  
+  in this way the DAC time function can correctly work.
 
-at line 467 on AFSK.cpp
+  
