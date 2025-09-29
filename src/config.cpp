@@ -491,7 +491,7 @@ bool saveConfiguration(const char *filename, const Configuration &config)
         {
             log_d("Failed to write to file");
         }else{
-            log_d("Write file configuration susses.");
+            log_d("Write file configuration success.");
         }
         // Close the file
         file.close();
