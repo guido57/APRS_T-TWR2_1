@@ -39,4 +39,6 @@ except for the following modifications.
   void IRAM_ATTR sample_dac_isr()
 
   at line 939 of AFSK.cpp
-  
+
+  In my opinion, without this modification the software https://github.com/nakhonthai/ESP32APRS_T-TWR version 0.5 cannot work on T-TWR Version 2.0 either, but I'm not sure because I don't own that hardware
+☺
