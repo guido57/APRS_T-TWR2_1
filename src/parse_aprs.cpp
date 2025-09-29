@@ -1295,7 +1295,7 @@ int ParseAPRS::parse_aprs_uncompressed(struct pbuf_t *pb, const char *body, cons
 
 	log_d("parse_aprs_uncompressed");
 
-	if (body_end - body < 19)
+	if (body_end - body < 16)
 	{
 		log_d("too short body_end-body=%d < 16\n", body_end - body);
 		return 0;
@@ -1330,11 +1330,12 @@ int ParseAPRS::parse_aprs_uncompressed(struct pbuf_t *pb, const char *body, cons
 
 	// fprintf(stderr, "\tafter filling amb: %s\n", posbuf);
 	/* 3210.70N/13132.15E# */
+	log_d("sscanf posbuf='%s'", posbuf);
 	if (sscanf(posbuf, "%2u%2u.%2u%c%c%3u%2u.%2u%c%c",
 			   &lat_deg, &lat_min, &lat_min_frag, &lat_hemi, &sym_table,
 			   &lng_deg, &lng_min, &lng_min_frag, &lng_hemi, &sym_code) != 10)
 	{
-		DEBUG_LOG("\tsscanf failed");
+		log_d("sscanf failed");
 		return 0;
 	}
 
@@ -1343,17 +1344,21 @@ int ParseAPRS::parse_aprs_uncompressed(struct pbuf_t *pb, const char *body, cons
 
 	if (lat_hemi == 'S' || lat_hemi == 's')
 		issouth = 1;
-	else if (lat_hemi != 'N' && lat_hemi != 'n')
+	else if (lat_hemi != 'N' && lat_hemi != 'n'){
+		log_d("neither north or south? bail out...");
 		return 0; /* neither north or south? bail out... */
-
+	}
 	if (lng_hemi == 'W' || lng_hemi == 'w')
 		iswest = 1;
-	else if (lng_hemi != 'E' && lng_hemi != 'e')
+	else if (lng_hemi != 'E' && lng_hemi != 'e'){
+		log_d("neither west or east? bail out...");
 		return 0; /* neither west or east? bail out ... */
+	}
 
-	if (lat_deg > 89 || lng_deg > 179)
+	if (lat_deg > 89 || lng_deg > 179){
+		log_d("too large values for lat/lng degrees lat_deg=%d lng_deg=%d\n", lat_deg, lng_deg);
 		return 0; /* too large values for lat/lng degrees */
-
+ }
 	lat = (float)lat_deg + (float)lat_min / 60.0 + (float)lat_min_frag / 6000.0;
 	lng = (float)lng_deg + (float)lng_min / 60.0 + (float)lng_min_frag / 6000.0;
 
@@ -1390,7 +1395,9 @@ int ParseAPRS::parse_aprs_uncompressed(struct pbuf_t *pb, const char *body, cons
 	}
 	else
 	{
-		parse_aprs_comment(pb, body + 19, (unsigned int)(body_end - body - 19));
+		log_d("calling parse_aprs_comment with pb=%s body=%s body+19=%s body_end=%s body_end-body-19=%d", pb->data, body, body+19, body_end, (int)(body_end - body - 19));
+		if(body_end - body - 19 > 0)
+			parse_aprs_comment(pb, body + 19, (unsigned int)(body_end - body - 19));
 	}
 
 	return pbuf_fill_pos(pb, lat, lng, sym_table, sym_code);
@@ -1558,6 +1565,9 @@ int parse_aprs_txgate(struct pbuf_t *pb, int look_inside_3rd_party, historydb_t 
 
 int ParseAPRS::parse_aprs(struct pbuf_t *pb)
 {
+
+    log_d("parse_aprs: %.*s", pb->packet_len, pb->data);
+
 	char packettype, poschar;
 	int paclen;
 	int rc;
@@ -1571,8 +1581,10 @@ int ParseAPRS::parse_aprs(struct pbuf_t *pb)
 	pb->packettype = T_ALL;
 	pb->flags = 0;
 
-	if (!pb->info_start)
+	if (!pb->info_start){
+		log_d("No info_start\n");
 		return 0;
+	}
 
 	if (pb->data[0] == 'C' && /* Perhaps CWOP ? */
 		pb->data[1] == 'W')
@@ -1604,13 +1616,14 @@ int ParseAPRS::parse_aprs(struct pbuf_t *pb)
 		// length of the info field:
 		paclen = body_end - info_start;
 
-		if (paclen < 1)
+		if (paclen < 1){
+			log_d("Empty packet\n");
 			return 0; // consumed all, or empty packet
-
+		}
 		// Check the first character of the packet and
 		// determine the packet type
 		packettype = *info_start;
-		// Serial.println(packettype);
+		log_d("packettype=%c\n", packettype);
 		//  Exit this loop unless it is 3rd-party frame
 		if (packettype != '}')
 			break;
@@ -1621,6 +1634,7 @@ int ParseAPRS::parse_aprs(struct pbuf_t *pb)
 		if (info_start == NULL)
 		{
 			// Not valid 3rd party frame!
+			log_d("3rd-party frame without ':'\n");
 			return 0;
 		}
 		pb->packettype |= T_THIRDPARTY;
@@ -1657,8 +1671,11 @@ int ParseAPRS::parse_aprs(struct pbuf_t *pb)
 			if (len > 0)
 				parse_aprs_comment(pb, body + 9, (unsigned int)len);
 			DEBUG_LOG("MICE\n");
+			if(rc == 0)
+				log_d("Mic-E parse failed\n");
 			return rc;
 		}
+		log_d("Mic-E packet too short %d < 9\n", paclen);
 		return 0; // bad
 
 	case '!':
@@ -1675,8 +1692,10 @@ int ParseAPRS::parse_aprs(struct pbuf_t *pb)
 	case '/':
 	case '@':
 		/* check that we won't run over right away */
-		if (body_end - body < 10)
+		if (body_end - body < 10){
+			log_d("Location packet too short %d < 10\n", body_end - body);
 			return 0; // bad
+		}
 		/* Normal or compressed location packet, with or without
 		 * timestamp, with or without messaging capability
 		 *
@@ -1698,19 +1717,24 @@ int ParseAPRS::parse_aprs(struct pbuf_t *pb)
 				rc = parse_aprs_compressed(pb, body, body_end);
 			}
 			DEBUG_LOG("\n");
+			log_d("Compressed position packet failed\n");
 			return rc;
 		}
 		else if (poschar >= 0x30 && poschar <= 0x39)
 		{ /* [0-9] */
 			/* normal uncompressed position */
 			rc = 0;
-			if (body_end - body >= 19)
+			if (body_end - body >= 18)
 			{
+				log_d("Calling parse_aprs_uncompressed pb=%s  body=%s body_end-body=%d", pb->data, body, (int)(body_end - body));
 				rc = parse_aprs_uncompressed(pb, body, body_end);
 			}
 			DEBUG_LOG("\n");
+			if(rc == 0)
+				log_d("Uncompressed position packet failed body_end - body = %d < 18\n", body_end - body);
 			return rc;
 		}
+		log_d("No valid position char '%c' in !/=@ packet\n", poschar);
 		return 0;
 
 	case '$':
@@ -1723,8 +1747,11 @@ int ParseAPRS::parse_aprs(struct pbuf_t *pb)
 			rc = parse_aprs_nmea(pb, body, body_end);
 			parse_aprs_comment(pb, body + 10, (unsigned int)(body_end - body - 10));
 			DEBUG_LOG("\n");
+			if(rc == 0)
+				log_d("NMEA parse failed\n");
 			return rc;
 		}
+		log_d("NMEA packet too short %d <= 10\n", body_end - body);
 		return 0;
 
 	case ':':
@@ -1810,8 +1837,11 @@ int ParseAPRS::parse_aprs(struct pbuf_t *pb)
 		{
 			rc = parse_aprs_object(pb, body, body_end);
 			DEBUG_LOG("\n");
+			if(rc == 0)
+				log_d("Object parse failed\n");
 			return rc;
 		}
+		log_d("OBJECT packet too short %d < 29\n", body_end - body);
 		return 0; // too short
 
 	case '>':
@@ -1839,8 +1869,11 @@ int ParseAPRS::parse_aprs(struct pbuf_t *pb)
 		{
 			rc = parse_aprs_item(pb, body, body_end);
 			DEBUG_LOG("\n");
+			if(rc==0)
+				log_d("Item parse failed\n");
 			return rc;
 		}
+		log_d("ITEM packet too short %d <= 18\n", body_end - body);
 		return 0; // too short
 
 	case 'T':
@@ -1853,8 +1886,11 @@ int ParseAPRS::parse_aprs(struct pbuf_t *pb)
 			rc = parse_aprs_telem(pb, body, body_end);
 			// DEBUG_LOG("\n");
 			parse_aprs_comment(pb, body, (unsigned int)(body_end - body));
+			if(rc == 0)
+				log_d("Telemetry parse failed\n");
 			return rc;
 		}
+		log_d("TELEMETRY packet too short %d <= 18\n", body_end - body);
 		return 0; // too short
 
 	case '#': /* Peet Bros U-II Weather Station */
@@ -1899,6 +1935,8 @@ int ParseAPRS::parse_aprs(struct pbuf_t *pb)
 				// parse_aprs_comment(pb, body + 19, (unsigned int)(body_end - body - 19));
 				DEBUG_LOG("\n");
 			}
+			if(rc == 0)
+				log_d("Compressed position packet failed\n");
 			return rc;
 		}
 		else if (poschar >= 0x30 && poschar <= 0x39)
@@ -1908,10 +1946,12 @@ int ParseAPRS::parse_aprs(struct pbuf_t *pb)
 			if (body_end - pos_start >= 19)
 				rc = parse_aprs_uncompressed(pb, pos_start, body_end);
 			DEBUG_LOG("\n");
+			if(rc == 0)
+				log_d("Uncompressed position packet failed %d < 19\n", body_end - pos_start);
 			return rc;
 		}
 	}
-
+	log_d("No valid packet type char '%c'\n", packettype);
 	return 0; // bad
 }
 
