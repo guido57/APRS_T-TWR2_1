@@ -44,7 +44,9 @@ except for the following modifications.
 😃
 
 - Both event_lastHeard in webservice.cpp and dispWindow in gui_lcd.cpp called parse_aprs without the last character. No problem if that character was the last of the comment, but if it was the last character of the location parse_aprs failed. Corrected at lines:
+  
   6785 gui_lcd.cpp
+
   874 webservice.cpp
 
   
