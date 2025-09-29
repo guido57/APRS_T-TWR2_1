@@ -42,3 +42,10 @@ except for the following modifications.
 
   In my opinion, without this modification the software https://github.com/nakhonthai/ESP32APRS_T-TWR version 0.5 cannot work on T-TWR Version 2.0 either, but I'm not sure because I don't own that hardware
 😃
+
+- Both event_lastHeard in webservice.cpp and dispWindow in gui_lcd.cpp called parse_aprs without the last character. No problem if that character was the last of the comment, but if it was the last character of the location parse_aprs failed. Corrected at lines:
+  6785 gui_lcd.cpp
+  874 webservice.cpp
+
+  
+     
