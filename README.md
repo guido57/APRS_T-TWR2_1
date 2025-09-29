@@ -11,8 +11,13 @@ except for the following modifications.
 
 ## MODIFICATIONS
 
-- The mail modification was to add
-  
-  hw_afsk_dac_isr = true; 
+- The main modification I did was to add
 
-  at line 467 on AFSK.cpp
+  ```
+     hw_afsk_dac_isr = true; 
+  ```
+  inside the function
+
+  void DAC_TimerEnable(bool sts)
+
+at line 467 on AFSK.cpp
