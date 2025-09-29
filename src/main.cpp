@@ -2803,7 +2803,7 @@ void RF_MODULE(bool boot)
       SerialRF.printf("AT+DMOCONNECT\r\n");
       if (SA868_waitResponse(data, rsp, 1000))
         log_d("%s", data.c_str());
-      sprintf(str, "AT+DMOSETGROUP=%01d,%0.4f,%0.4f,%d,%01d,%d,0", config.band, config.freq_tx + ((float)config.offset_tx / 1000000), config.freq_rx + ((float)config.offset_rx / 1000000), config.tone_rx, config.sql_level, config.tone_tx);
+        sprintf(str, "AT+DMOSETGROUP=%01d,%0.4f,%0.4f,%d,%01d,%d,0", config.band, config.freq_tx + ((float)config.offset_tx / 1000000), config.freq_rx + ((float)config.offset_rx / 1000000), config.tone_rx, config.sql_level, config.tone_tx);
       SerialRF.println(str);
       log_d("Write to SR_FRS: %s", str);
       if (SA868_waitResponse(data, rsp, 1000))
@@ -2824,6 +2824,7 @@ void RF_MODULE(bool boot)
     }
     else if ((config.rf_type == RF_SA868_VHF) || (config.rf_type == RF_SA868_UHF) || (config.rf_type == RF_SA868_350))
     {
+      log_d("AT+DMOCONNECT\r\n");
       SerialRF.printf("AT+DMOCONNECT\r\n");
       if (SA868_waitResponse(data, rsp, 1000))
         log_d("%s", data.c_str());
@@ -2936,6 +2937,7 @@ void RF_MODULE_CHECK()
     if (config.rf_type == RF_SA8x8_OpenEdit)
       sa868.setLowPower();
     digitalWrite(POWER_PIN, LOW);
+    pinMode(PULLDOWN_PIN, OUTPUT);
     digitalWrite(PULLDOWN_PIN, LOW);
     delay(500);
     RF_MODULE(true);
@@ -6268,7 +6270,7 @@ void taskAPRS(void *pvParameters)
         tickInterval = millis() + 1000;
 
         tx_counter++;
-        // log_d("TRACKER tx_counter=%d\t INTERVAL=%d\n", tx_counter, tx_interval);
+        log_d("TRACKER tx_counter=%d\t INTERVAL=%d\n", tx_counter, tx_interval);
         //   Check interval timeout
         if (config.trk_smartbeacon && config.trk_gps)
         {
@@ -6680,12 +6682,12 @@ void taskAPRS(void *pvParameters)
         else
           sprintf(call, "%s", incomingPacket.src.call);
 
-        char *rawP = (char *)calloc(tnc2.length(), sizeof(char));
+        char *rawP = (char *)calloc(tnc2.length()+1, sizeof(char));
         if (rawP)
         {
-          memset(rawP, 0, tnc2.length());
-          tnc2.toCharArray(rawP, tnc2.length(), 0);
+          tnc2.toCharArray(rawP, tnc2.length()+1, 0);
           // memcpy(rawP, tnc2.c_str(), tnc2.length());
+          log_d("Calling pkgListUpdate with: call=%s rawP=%s type=%d", call, rawP, type);
           int idx = pkgListUpdate(call, rawP, type, 0, incomingPacket.mVrms);
 
 #if defined OLED || defined ST7735_160x80
@@ -6696,7 +6698,7 @@ void taskAPRS(void *pvParameters)
             {
               //dispBuffer.push(tnc2.c_str());
               pushTNC2Raw(idx);
-              log_d("RF_putQueueDisp:[pkgList_idx=%d,Type=%d RAW:%s] %s\n", idx, type, call, tnc2.c_str());
+              //log_d("RF_putQueueDisp:[pkgList_idx=%d,Type=%d RAW:%s] %s\n", idx, type, call, tnc2.c_str());
             }
           }
 #endif
