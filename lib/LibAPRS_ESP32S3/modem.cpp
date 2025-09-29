@@ -22,7 +22,7 @@ along with VP-Digi.  If not, see <http://www.gnu.org/licenses/>.
 #include "modem.h"
 #include <stdlib.h>
 #include <stdbool.h>
-#include "ax25.h"
+#include "AX25.h"
 #include "common.h"
 #include "esp_dsp.h"
 #include <dsps_fir.h>

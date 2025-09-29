@@ -19,7 +19,7 @@ along with VP-Digi.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <Arduino.h>
 #include "modem.h"
-#include "ax25.h"
+#include "AX25.h"
 #include <stdlib.h>
 #include "common.h"
 #include <stdbool.h>
@@ -536,6 +536,8 @@ endParseFx25Frame:
 
 void *Ax25WriteTxFrame(uint8_t *data, uint16_t size)
 {
+	log_d("Ax25WriteTxFrame size=%d", size);
+
 	if(txFrameBufferFull)
 		return NULL;
 

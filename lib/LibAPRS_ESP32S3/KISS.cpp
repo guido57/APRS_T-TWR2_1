@@ -3,7 +3,7 @@
 #include <stdint.h>
 
 #include "KISS.h"
-#include "ax25.h"
+#include "AX25.h"
 
 size_t ctxbufflen;
 size_t frame_len = 0;
