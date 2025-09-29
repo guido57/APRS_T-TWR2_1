@@ -464,6 +464,7 @@ void DAC_TimerEnable(bool sts)
   if (sts == true)
   {
     timerStart(timer_dac);
+    hw_afsk_dac_isr = true; //GG
   }
   else
   {
