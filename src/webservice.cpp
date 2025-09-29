@@ -819,7 +819,7 @@ void handle_sysinfo(AsyncWebServerRequest *request)
 
 void event_lastHeard()
 {
-	// log_d("Event count: %d",lastheard_events.count());
+	log_d("Event count: %d",lastheard_events.count());
 	if (lastheard_events.count() == 0)
 		return;
 
@@ -831,7 +831,7 @@ void event_lastHeard()
 	String line = "";
 	sort(pkgList, PKGLISTSIZE);
 
-	// log_d("Create html last heard");
+	log_d("Create html last heard");
 
 	html = "<table>\n";
 	html += "<th colspan=\"7\" style=\"background-color: #070ac2;\">LAST HEARD <a href=\"/tnc2\" target=\"_tnc2\" style=\"color: yellow;font-size:8pt\">[RAW]</a></th>\n";
@@ -862,7 +862,7 @@ void event_lastHeard()
 		if (pkg.time > 0)
 		{
 			line = String(pkg.raw);
-			//log_d("pkgList IDX=%d RAW:%s",i,pkg.raw);
+			log_d("pkgList IDX=%d RAW:%s",i,pkg.raw);
 			int packet = pkg.pkg;
 			int start_val = line.indexOf(">", 0); // หาตำแหน่งแรกของ >
 			if (start_val > 3)
@@ -871,7 +871,7 @@ void event_lastHeard()
 				memset(&aprs, 0, sizeof(pbuf_t));
 				aprs.buf_len = 300;
 				aprs.packet_len = line.length();
-				line.toCharArray(&aprs.data[0], aprs.packet_len);
+				line.toCharArray(&aprs.data[0], aprs.packet_len+1);
 				int start_info = line.indexOf(":", 0);
 				int end_ssid = line.indexOf(",", 0);
 				int start_dst = line.indexOf(">", 2);
@@ -898,8 +898,14 @@ void event_lastHeard()
 				aprs.dstcall_end = &aprs.data[end_ssid];
 				aprs.srccall_end = &aprs.data[start_dst];
 
-				// Serial.println(aprs.info_start);
-				if (aprsParse.parse_aprs(&aprs))
+				log_d("aprs.info_start=%s", aprs.info_start);
+				log_d("aprs.dstname=%s", aprs.dstname);
+				log_d("aprs.dstname_len=%d", aprs.dstname_len);
+				log_d("aprs.dstcall_end=%s", aprs.dstcall_end);
+				log_d("aprs.srccall_end=%s", aprs.srccall_end);
+				int parseResult = aprsParse.parse_aprs(&aprs);
+				log_d("aprsParse.parse_aprs=%d", parseResult);
+				if (parseResult)
 				{
 					pkg.calsign[10] = 0;
 					// time_t tm = pkg.time;
@@ -1023,7 +1029,7 @@ void event_lastHeard()
 		}
 	}
 	html += "</table>\n";
-	// log_d("HTML Length=%d Byte",html.length());
+	log_d("HTML Length=%d Byte  html=%s",html.length(),html.c_str());
 	size_t len = html.length();
 	char *info = (char *)calloc(len, sizeof(char));
 	if (info)
