@@ -59,6 +59,11 @@ except for the following modifications.
   ```
   2939   pinMode(PULLDOWN_PIN, OUTPUT);
   ```
+  # INSTALLATION
+
+  Use the following method https://github.com/nakhonthai/ESP32APRS_T-TWR?tab=readme-ov-file#platformio-quick-start
+ 
+
 
   # SETTINGS
 
