@@ -59,5 +59,10 @@ except for the following modifications.
   ```
   2939   pinMode(PULLDOWN_PIN, OUTPUT);
   ```
-  
+
+  # SETTINGS
+
+  Use the following settings:
+
+ ![images/MOD.PNG](images/MOD.PNG)
      
