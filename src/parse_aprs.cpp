@@ -1295,7 +1295,7 @@ int ParseAPRS::parse_aprs_uncompressed(struct pbuf_t *pb, const char *body, cons
 
 	log_d("parse_aprs_uncompressed");
 
-	if (body_end - body < 16)
+	if (body_end - body < 19)
 	{
 		log_d("too short body_end-body=%d < 16\n", body_end - body);
 		return 0;
