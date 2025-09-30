@@ -2824,7 +2824,6 @@ void RF_MODULE(bool boot)
     }
     else if ((config.rf_type == RF_SA868_VHF) || (config.rf_type == RF_SA868_UHF) || (config.rf_type == RF_SA868_350))
     {
-      log_d("AT+DMOCONNECT\r\n");
       SerialRF.printf("AT+DMOCONNECT\r\n");
       if (SA868_waitResponse(data, rsp, 1000))
         log_d("%s", data.c_str());
