@@ -75,6 +75,8 @@ except for the following modifications.
  
  ![images/Radio.png](images/TRACKER.png)
 
+Connecting a good antenna, after a few hours you should see something like this:
+
  ![images/DashBoard.png](images/DashBoard.png)
  
       
