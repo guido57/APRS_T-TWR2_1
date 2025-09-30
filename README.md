@@ -64,5 +64,12 @@ except for the following modifications.
 
   Use the following settings:
 
- ![images/MOD.PNG](images/MOD.PNG)
-     
+ ![images/MOD.png](images/MOD.png)
+
+ ![images/Radio.png](images/Radio.png)
+ 
+ ![images/Radio.png](images/TRACKER.png)
+
+ ![images/DashBoard.png](images/DashBoard.png)
+ 
+      
