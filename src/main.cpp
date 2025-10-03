@@ -3321,6 +3321,12 @@ void postTransmission()
   digitalWrite(config.modbus_de_gpio, 0);
 }
 
+
+bool deviceExists(uint8_t addr) {
+  Wire.beginTransmission(addr);
+  return (Wire.endTransmission() == 0);
+}
+
 char *htmlBuffer;
 void setup()
 {
@@ -3414,7 +3420,22 @@ void setup()
 
   i2c_busy = true;
   // by default, we'll generate the high voltage from the 3.3v line internally! (neat!)
-  display.begin(SSD1306_SWITCHCAPVCC, 0x3C, false); // initialize with the I2C addr 0x3C (for the 128x64)
+  
+  
+  // display.begin(SSD1306_SWITCHCAPVCC, 0x3C, false); // initialize with the I2C addr 0x3C (for the 128x64)
+  uint8_t oled_addr = 0;
+  if (deviceExists(0x3D)) {
+    oled_addr = 0x3D;
+    log_d("OLED found at 0x%02X", oled_addr);
+  } else if(deviceExists(0x3C)) {
+    oled_addr = 0x3C;
+    log_d("OLED found at 0x%02X", oled_addr);
+  } else {
+    log_d("No OLED found");
+    config.oled_enable = false;
+  }   
+
+  display.begin(SSD1306_SWITCHCAPVCC, oled_addr, false); // initialize with the I2C addr 0x3C (for the 128x64)
   // Initialising the UI will init the display too.
 
   // clear the display
